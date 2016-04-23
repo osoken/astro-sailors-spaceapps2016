@@ -11,6 +11,7 @@ public class gyro : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        // debug mode
         for (int i = 0; i < 100; ++i)
         {
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
