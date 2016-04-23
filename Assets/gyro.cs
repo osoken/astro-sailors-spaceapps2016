@@ -11,13 +11,6 @@ public class gyro : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        // debug mode
-        for (int i = 0; i < 100; ++i)
-        {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.transform.position = Random.onUnitSphere * 10f;
-            go.transform.rotation = Random.rotation;
-        }
 #if UNITY_EDITOR
         rot = transform.rotation.eulerAngles;
 #else
