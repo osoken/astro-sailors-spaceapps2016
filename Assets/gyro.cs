@@ -3,9 +3,7 @@ using System.Collections;
 
 public class gyro : MonoBehaviour
 {
-    private float velocity = 0.0f;
-    private float velocityMax = 10.0f;
-    private float velocityMin = -10.0f;
+    private Vector2 velocity = new Vector2(0.0f, 0.0f);
 #if UNITY_EDITOR
     private Vector3 rot;
 #endif
@@ -25,23 +23,26 @@ public class gyro : MonoBehaviour
         Input.gyro.enabled = true;
 #endif
     }
-    void ModSpeed(float a)
+    void ModSpeed(Vector2 a)
     {
         velocity += a;
-        if (velocity > velocityMax)
-        {
-            velocity = velocityMax;
-        }
-        if (velocity < velocityMin)
-        {
-            velocity = velocityMin;
-        }
+    }
+    void ModAngle()
+    {
+#if UNITY_EDITOR
+        float spd = Time.deltaTime * 100.0f;
+        rot += new Vector3(-spd * Input.GetAxis("Mouse Y"), spd * Input.GetAxis("Mouse X"), 0.0f);
+        transform.rotation = Quaternion.Euler(rot);
+#else
+        transform.rotation = Quaternion.AngleAxis(90.0f,Vector3.right)*Input.gyro.attitude*Quaternion.AngleAxis(180.0f,Vector3.forward);
+#endif
     }
     void Slower()
     {
-        if (velocity < 0.5 && velocity > -0.5)
+        if (velocity.magnitude < 0.5)
         {
-            velocity = 0.0f;
+            velocity.x = 0.0f;
+            velocity.y = 0.0f;
         }
         else
         {
@@ -51,37 +52,9 @@ public class gyro : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-#if UNITY_EDITOR
-        float spd = Time.deltaTime * 100.0f;
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            rot.y -= spd;
-        }
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            rot.y += spd;
-        }
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-            rot.x -= spd;
-        }
-        if (Input.GetKey(KeyCode.DownArrow))
-        {
-            rot.x += spd;
-        }
-        transform.rotation = Quaternion.Euler(rot);
-#else
-        transform.rotation = Quaternion.AngleAxis(90.0f,Vector3.right)*Input.gyro.attitude*Quaternion.AngleAxis(180.0f,Vector3.forward);
-#endif
-        if (Input.GetKey(KeyCode.W))
-        {
-            ModSpeed(1.0f);
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            ModSpeed(-1.0f);
-        }
-        transform.Translate(velocity * Vector3.forward * Time.deltaTime);
+        ModAngle();
+        ModSpeed(new Vector2(Input.GetAxis("Vertical"), Input.GetAxis("Horizontal")));
+        transform.Translate(velocity.x * Vector3.forward * Time.deltaTime + velocity.y * Vector3.right * Time.deltaTime);
         Slower();
     }
 }
